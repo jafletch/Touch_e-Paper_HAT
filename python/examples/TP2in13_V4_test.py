@@ -110,7 +110,7 @@ def create_grid_layout(image):
         text_y = center_y - text_height // 2
         
         # Draw centered text
-        draw.text((text_x, text_y), text, font=font, fill=0)
+        image.paste(text, (text_x, text_y))
 
     return image
 
