@@ -50,6 +50,52 @@ def Read_BMP(File, x, y):
     newimage = Image.open(os.path.join(picdir, File))
     image.paste(newimage, (x, y))
 
+def create_grid_layout(image):
+    """Create a grid layout filling the entire display"""
+    draw = ImageDraw.Draw(image)
+    
+    # Display dimensions
+    width = 122
+    height = 250
+    
+    # Clear the entire image to white first
+    draw.rectangle([(0, 0), (width-1, height-1)], fill=255)
+    
+    # Top 3/4 area (187.5 pixels, rounded to 188)
+    top_height = int(height * 3 / 4)  # 188 pixels
+    
+    # Each rectangle width in top section (4 rectangles with 3 separators of 1 pixel)
+    rect_width = (width - 3) // 4  # (122 - 3) / 4 = 29.75, rounded to 29
+    
+    # Draw 4 rectangles in top 3/4 area
+    for i in range(4):
+        x1 = i * (rect_width + 1)  # Add 1 pixel separator
+        y1 = 0
+        x2 = x1 + rect_width - 1
+        y2 = top_height - 1
+        
+        # Draw white rectangle with black border
+        draw.rectangle([(x1, y1), (x2, y2)], fill=255, outline=0, width=1)
+    
+    # Bottom 1/4 area
+    bottom_start = top_height + 1  # Start after 1 pixel separator
+    bottom_height = height - bottom_start
+    
+    # Each rectangle width in bottom section (2 rectangles with 1 separator)
+    bottom_rect_width = (width - 1) // 2  # (122 - 1) / 2 = 60.5, rounded to 60
+    
+    # Draw 2 rectangles in bottom 1/4 area
+    for i in range(2):
+        x1 = i * (bottom_rect_width + 1)  # Add 1 pixel separator
+        y1 = bottom_start
+        x2 = x1 + bottom_rect_width - 1
+        y2 = height - 1
+        
+        # Draw white rectangle with black border
+        draw.rectangle([(x1, y1), (x2, y2)], fill=255, outline=0, width=1)
+    
+    return image
+
 try:
     logger.info("epd2in13_V4 Touch Demo")
     
@@ -74,17 +120,14 @@ try:
     
     #image = Image.open(os.path.join(picdir, 'Menu.bmp'))
     
-    # Create a new white image or load from file
+    # Create a new white image
     image = Image.new('L', (122, 250), 255)  # Create white image (122x250 pixels)
-    # Alternative: image = Image.open(os.path.join(picdir, 'Menu.bmp'))
+    
+    # Create the grid layout
+    create_grid_layout(image)
     
     # Create drawing context
     DrawImage = ImageDraw.Draw(image)
-    
-    # Example: Draw some rectangles on the image
-    DrawImage.rectangle([(10, 10), (50, 40)], fill=0)      # Black rectangle
-    DrawImage.rectangle([(60, 10), (100, 40)], fill=128)   # Gray rectangle  
-    DrawImage.rectangle([(10, 50), (100, 80)], outline=0, width=2)  # White rectangle with black border
 
     epd.displayPartBaseImage(epd.getbuffer(image))
     # DrawImage = ImageDraw.Draw(image)
@@ -147,6 +190,10 @@ try:
                     logger.debug("Draw ...")
                     Page = 1
                     Read_BMP(PagePath[Page], 0, 0)
+                    ReFlag = 1
+                elif(deviceTouchData.X[0] > 0 and deviceTouchData.X[0] < 25 and deviceTouchData.Y[0] > 0 and deviceTouchData.Y[0] < 25):
+                    logger.debug("Grid layout ...")
+                    create_grid_layout(image)
                     ReFlag = 1
                 
             
