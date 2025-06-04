@@ -54,42 +54,43 @@ def create_grid_layout(image):
     """Create a grid layout filling the entire display"""
     draw = ImageDraw.Draw(image)
     
-    # Display dimensions
-    width = 250
-    height = 122
+    # Display dimensions - swapped coordinate system
+    # width (122) now maps to Y-axis, height (250) now maps to X-axis
+    display_x = 250  # height becomes X dimension
+    display_y = 122  # width becomes Y dimension
     
     # Clear the entire image to white first
-    draw.rectangle([(0, 0), (width-1, height-1)], fill=255)
+    draw.rectangle([(0, 0), (display_x-1, display_y-1)], fill=255)
     
-    # Top 3/4 area (187.5 pixels, rounded to 188)
-    top_height = int(height * 3 / 4)  # 188 pixels
+    # Left 3/4 area (187.5 pixels, rounded to 188)
+    left_width = int(display_x * 3 / 4)  # 188 pixels
     
-    # Each rectangle width in top section (4 rectangles with 3 separators of 1 pixel)
-    rect_width = (width - 3) // 4  # (122 - 3) / 4 = 29.75, rounded to 29
+    # Each rectangle height in left section (4 rectangles with 3 separators of 1 pixel)
+    rect_height = (display_y - 3) // 4  # (122 - 3) / 4 = 29.75, rounded to 29
     
-    # Draw 4 rectangles in top 3/4 area
+    # Draw 4 rectangles in left 3/4 area
     for i in range(4):
-        x1 = i * (rect_width + 1)  # Add 1 pixel separator
-        y1 = 0
-        x2 = x1 + rect_width - 1
-        y2 = top_height - 1
+        x1 = 0
+        y1 = i * (rect_height + 1)  # Add 1 pixel separator
+        x2 = left_width - 1
+        y2 = y1 + rect_height - 1
         
         # Draw white rectangle with black border
         draw.rectangle([(x1, y1), (x2, y2)], fill=255, outline=0, width=1)
     
-    # Bottom 1/4 area
-    bottom_start = top_height + 1  # Start after 1 pixel separator
-    bottom_height = height - bottom_start
+    # Right 1/4 area
+    right_start = left_width + 1  # Start after 1 pixel separator
+    right_width = display_x - right_start
     
-    # Each rectangle width in bottom section (2 rectangles with 1 separator)
-    bottom_rect_width = (width - 1) // 2  # (122 - 1) / 2 = 60.5, rounded to 60
+    # Each rectangle height in right section (2 rectangles with 1 separator)
+    right_rect_height = (display_y - 1) // 2  # (122 - 1) / 2 = 60.5, rounded to 60
     
-    # Draw 2 rectangles in bottom 1/4 area
+    # Draw 2 rectangles in right 1/4 area
     for i in range(2):
-        x1 = i * (bottom_rect_width + 1)  # Add 1 pixel separator
-        y1 = bottom_start
-        x2 = x1 + bottom_rect_width - 1
-        y2 = height - 1
+        x1 = right_start
+        y1 = i * (right_rect_height + 1)  # Add 1 pixel separator
+        x2 = display_x - 1
+        y2 = y1 + right_rect_height - 1
         
         # Draw white rectangle with black border
         draw.rectangle([(x1, y1), (x2, y2)], fill=255, outline=0, width=1)
