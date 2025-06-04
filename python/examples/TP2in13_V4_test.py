@@ -23,9 +23,9 @@ def pthread_irq() :
     print("pthread running")
     while flag_t == 1 :
         if(gt.digital_read(gt.INT) == 0) :
-            GT_Dev.Touch = 1
+            deviceTouchData.Touch = 1
         else :
-            GT_Dev.Touch = 0
+            deviceTouchData.Touch = 0
     print("thread:exit")
 
 def Show_Photo_Small(image, small):
