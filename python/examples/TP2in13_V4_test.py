@@ -54,8 +54,8 @@ try:
     
     epd = epd2in13_V4.EPD()
     gt = gt1151.GT1151()
-    GT_Dev = gt1151.GT_Development()
-    GT_Old = gt1151.GT_Development()
+    deviceTouchData = gt1151.GT_Development()
+    oldTouchData = gt1151.GT_Development()
     
     logging.info("init and Clear")
     
@@ -114,22 +114,22 @@ try:
         else:
             k += 1
         # Read the touch input
-        gt.GT_Scan(GT_Dev, GT_Old)
-        if(GT_Old.X[0] == GT_Dev.X[0] and GT_Old.Y[0] == GT_Dev.Y[0] and GT_Old.S[0] == GT_Dev.S[0]):
+        gt.GT_Scan(deviceTouchData, oldTouchData)
+        if(oldTouchData.X[0] == deviceTouchData.X[0] and oldTouchData.Y[0] == deviceTouchData.Y[0] and oldTouchData.S[0] == deviceTouchData.S[0]):
             continue
         
-        if(GT_Dev.TouchpointFlag):
+        if(deviceTouchData.TouchpointFlag):
             i += 1
-            GT_Dev.TouchpointFlag = 0
+            deviceTouchData.TouchpointFlag = 0
 
             if(Page == 0  and ReFlag == 0):     #main menu
-                if(GT_Dev.X[0] > 29 and GT_Dev.X[0] < 92 and GT_Dev.Y[0] > 56 and GT_Dev.Y[0] < 95):
+                if(deviceTouchData.X[0] > 29 and deviceTouchData.X[0] < 92 and deviceTouchData.Y[0] > 56 and deviceTouchData.Y[0] < 95):
                     print("Photo ...\r\n")
                     Page = 2
                     Read_BMP(PagePath[Page], 0, 0)
                     Show_Photo_Small(image, Photo_S)
                     ReFlag = 1
-                elif(GT_Dev.X[0] > 29 and GT_Dev.X[0] < 92 and GT_Dev.Y[0] > 153 and GT_Dev.Y[0] < 193): 
+                elif(deviceTouchData.X[0] > 29 and deviceTouchData.X[0] < 92 and deviceTouchData.Y[0] > 153 and deviceTouchData.Y[0] < 193): 
                     print("Draw ...\r\n")
                     Page = 1
                     Read_BMP(PagePath[Page], 0, 0)
@@ -137,51 +137,51 @@ try:
                 
             
             if(Page == 1 and ReFlag == 0):   #white board
-                DrawImage.rectangle([(GT_Dev.X[0], GT_Dev.Y[0]), (GT_Dev.X[0] + GT_Dev.S[0]/8 + 1, GT_Dev.Y[0] + GT_Dev.S[0]/8 + 1)], fill=0)
-                if(GT_Dev.X[0] > 96 and GT_Dev.X[0] < 118 and GT_Dev.Y[0] > 6 and GT_Dev.Y[0] < 30): 
+                DrawImage.rectangle([(deviceTouchData.X[0], deviceTouchData.Y[0]), (deviceTouchData.X[0] + deviceTouchData.S[0]/8 + 1, deviceTouchData.Y[0] + deviceTouchData.S[0]/8 + 1)], fill=0)
+                if(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 118 and deviceTouchData.Y[0] > 6 and deviceTouchData.Y[0] < 30): 
                     print("Home ...\r\n")
                     Page = 1
                     Read_BMP(PagePath[Page], 0, 0)
                     ReFlag = 1
-                elif(GT_Dev.X[0] > 96 and GT_Dev.X[0] < 118 and GT_Dev.Y[0] > 113 and GT_Dev.Y[0] < 136): 
+                elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 118 and deviceTouchData.Y[0] > 113 and deviceTouchData.Y[0] < 136): 
                     print("Clear ...\r\n")
                     Page = 0
                     Read_BMP(PagePath[Page], 0, 0)
                     ReFlag = 1
-                elif(GT_Dev.X[0] > 96 and GT_Dev.X[0] < 118 and GT_Dev.Y[0] > 220 and GT_Dev.Y[0] < 242): 
+                elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 118 and deviceTouchData.Y[0] > 220 and deviceTouchData.Y[0] < 242): 
                     print("Refresh ...\r\n")
                     SelfFlag = 1
                     ReFlag = 1
                 
             
             if(Page == 2  and ReFlag == 0):  #photo menu
-                if(GT_Dev.X[0] > 97 and GT_Dev.X[0] < 119 and GT_Dev.Y[0] > 113 and GT_Dev.Y[0] < 136): 
+                if(deviceTouchData.X[0] > 97 and deviceTouchData.X[0] < 119 and deviceTouchData.Y[0] > 113 and deviceTouchData.Y[0] < 136): 
                     print("Home ...\r\n")
                     Page = 0
                     Read_BMP(PagePath[Page], 0, 0)
                     ReFlag = 1
-                elif(GT_Dev.X[0] > 97 and GT_Dev.X[0] < 119 and GT_Dev.Y[0] > 57 and GT_Dev.Y[0] < 78): 
+                elif(deviceTouchData.X[0] > 97 and deviceTouchData.X[0] < 119 and deviceTouchData.Y[0] > 57 and deviceTouchData.Y[0] < 78): 
                     print("Next page ...\r\n")
                     Photo_S += 1
                     if(Photo_S > 2): # 6 photos is a maximum of three pages
                         Photo_S=0
                     ReFlag = 2
-                elif(GT_Dev.X[0] > 97 and GT_Dev.X[0] < 119 and GT_Dev.Y[0] > 169 and GT_Dev.Y[0] < 190): 
+                elif(deviceTouchData.X[0] > 97 and deviceTouchData.X[0] < 119 and deviceTouchData.Y[0] > 169 and deviceTouchData.Y[0] < 190): 
                     print("Last page ...\r\n")
                     if(Photo_S == 0):
                         print("Top page ...\r\n")
                     else:
                         Photo_S -= 1
                         ReFlag = 2
-                elif(GT_Dev.X[0] > 97 and GT_Dev.X[0] < 119 and GT_Dev.Y[0] > 220 and GT_Dev.Y[0] < 242): 
+                elif(deviceTouchData.X[0] > 97 and deviceTouchData.X[0] < 119 and deviceTouchData.Y[0] > 220 and deviceTouchData.Y[0] < 242): 
                     print("Refresh ...\r\n")
                     SelfFlag = 1
                     ReFlag = 1
-                elif(GT_Dev.X[0] > 2 and GT_Dev.X[0] < 90 and GT_Dev.Y[0] > 2 and GT_Dev.Y[0] < 248 and ReFlag == 0):
+                elif(deviceTouchData.X[0] > 2 and deviceTouchData.X[0] < 90 and deviceTouchData.Y[0] > 2 and deviceTouchData.Y[0] < 248 and ReFlag == 0):
                     print("Select photo ...\r\n")
                     Page = 3
                     Read_BMP(PagePath[Page], 0, 0)
-                    Photo_L = int(GT_Dev.X[0]/46*2 + 2-GT_Dev.Y[0]/124 + Photo_S*2)
+                    Photo_L = int(deviceTouchData.X[0]/46*2 + 2-deviceTouchData.Y[0]/124 + Photo_S*2)
                     Show_Photo_Large(image, Photo_L)
                     ReFlag = 1
                 if(ReFlag == 2):  # Refresh small photo
@@ -191,31 +191,31 @@ try:
                 
             
             if(Page == 3  and ReFlag == 0):     #view the photo
-                if(GT_Dev.X[0] > 96 and GT_Dev.X[0] < 117 and GT_Dev.Y[0] > 4 and GT_Dev.Y[0] < 25): 
+                if(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 117 and deviceTouchData.Y[0] > 4 and deviceTouchData.Y[0] < 25): 
                     print("Photo menu ...\r\n")
                     Page = 2
                     Read_BMP(PagePath[Page], 0, 0)
                     Show_Photo_Small(image, Photo_S)
                     ReFlag = 1
-                elif(GT_Dev.X[0] > 96 and GT_Dev.X[0] < 117 and GT_Dev.Y[0] > 57 and GT_Dev.Y[0] < 78): 
+                elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 117 and deviceTouchData.Y[0] > 57 and deviceTouchData.Y[0] < 78): 
                     print("Next photo ...\r\n")
                     Photo_L += 1
                     if(Photo_L > 6):
                         Photo_L = 1
                     ReFlag = 2
-                elif(GT_Dev.X[0] > 96 and GT_Dev.X[0] < 117 and GT_Dev.Y[0] > 113 and GT_Dev.Y[0] < 136): 
+                elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 117 and deviceTouchData.Y[0] > 113 and deviceTouchData.Y[0] < 136): 
                     print("Home ...\r\n")
                     Page = 0
                     Read_BMP(PagePath[Page], 0, 0)
                     ReFlag = 1
-                elif(GT_Dev.X[0] > 96 and GT_Dev.X[0] < 117 and GT_Dev.Y[0] > 169 and GT_Dev.Y[0] < 190): 
+                elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 117 and deviceTouchData.Y[0] > 169 and deviceTouchData.Y[0] < 190): 
                     print("Last page ...\r\n")
                     if(Photo_L == 1):
                         print("Top photo ...\r\n")
                     else: 
                         Photo_L -= 1
                         ReFlag = 2
-                elif(GT_Dev.X[0] > 96 and GT_Dev.X[0] < 117 and GT_Dev.Y[0] > 220 and GT_Dev.Y[0] < 242): 
+                elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 117 and deviceTouchData.Y[0] > 220 and deviceTouchData.Y[0] < 242): 
                     print("Refresh photo ...\r\n")
                     SelfFlag = 1
                     ReFlag = 1
