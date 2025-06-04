@@ -132,7 +132,7 @@ try:
     t.start()
 
     # Drawing on the image
-    font = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 15)
+    font = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 18)
     #font24 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 24)
     
     #image = Image.open(os.path.join(picdir, 'Menu.bmp'))
