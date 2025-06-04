@@ -55,8 +55,8 @@ def create_grid_layout(image):
     draw = ImageDraw.Draw(image)
     
     # Display dimensions
-    width = 122
-    height = 250
+    width = 250
+    height = 122
     
     # Clear the entire image to white first
     draw.rectangle([(0, 0), (width-1, height-1)], fill=255)
