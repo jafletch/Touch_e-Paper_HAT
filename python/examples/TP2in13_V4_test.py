@@ -50,6 +50,27 @@ def Read_BMP(File, x, y):
     newimage = Image.open(os.path.join(picdir, File))
     image.paste(newimage, (x, y))
 
+def prepare_text(draw, text, font):
+    """Draw rotated text at specified position"""
+    # Get text dimensions
+    bbox = draw.textbbox((0, 0), text, font=font)
+    text_width = bbox[2] - bbox[0]
+    text_height = bbox[3] - bbox[1]
+    
+    # Create a temporary image for the text
+    text_img = Image.new('L', (text_width, text_height), 255)  # White background
+    text_draw = ImageDraw.Draw(text_img)
+    
+    # Draw text on temporary image
+    text_draw.text((0, 0), text, font=font, fill=0)
+    
+    # Rotate the text image
+    rotated_text = text_img.rotate(90, expand=True)
+    
+    # Paste the rotated text onto the main image
+    # Note: You'll need the main image object, not just the draw object
+    return rotated_text
+
 def create_grid_layout(image):
     """Create a grid layout filling the entire display"""
     draw = ImageDraw.Draw(image)
@@ -83,12 +104,9 @@ def create_grid_layout(image):
         center_x = (x1 + x2) // 2
         center_y = (y1 + y2) // 2
         
-        # Get text dimensions for centering
-        text = rect_labels[i]
-        bbox = draw.textbbox((0, 0), text, font=font)
-        text_width = bbox[2] - bbox[0]
-        text_height = bbox[3] - bbox[1]
-        
+        text = prepare_text(draw, rect_labels[i], font)
+        text_width, text_height = text.size
+
         # Calculate text position (top-left corner for centered text)
         text_x = center_x - text_width // 2
         text_y = center_y - text_height // 2
