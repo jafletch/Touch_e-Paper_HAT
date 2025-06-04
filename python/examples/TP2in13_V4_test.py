@@ -69,7 +69,7 @@ def prepare_text(text, font):
     # Rotate and return
     return text_img.rotate(90, expand=True)
 
-def create_grid_layout(image):
+def create_grid_layout(image, font):
     """Create a grid layout filling the entire display"""
     draw = ImageDraw.Draw(image)
     
@@ -86,7 +86,6 @@ def create_grid_layout(image):
     top_rect_height = int(((display_x * 3 / 7)  - 3))
     
     rect_labels = ["C Wall", "C End", "D Wall", "D End"]
-    font = ImageFont.load_default()  # Load default font
     # Draw 4 rectangles in upper 3/4 area
     for i in range(4):
         x1 = (0 if i < 2 else 1) * (top_rect_height + 1) + 1  # Add 1 pixel separator
@@ -133,7 +132,7 @@ try:
     t.start()
 
     # Drawing on the image
-    #font15 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 15)
+    font = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 15)
     #font24 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 24)
     
     #image = Image.open(os.path.join(picdir, 'Menu.bmp'))
@@ -142,7 +141,7 @@ try:
     image = Image.new('L', (122, 250), 255)  # Create white image (122x250 pixels)
     
     # Create the grid layout
-    create_grid_layout(image)
+    create_grid_layout(image, font)
     
     # Create drawing context
     DrawImage = ImageDraw.Draw(image)
