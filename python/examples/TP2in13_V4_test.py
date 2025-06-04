@@ -62,13 +62,11 @@ def create_grid_layout(image):
     # Clear the entire image to white first
     draw.rectangle([(0, 0), (display_x-1, display_y-1)], fill=255)
     
-    # Left 3/4 area (187.5 pixels, rounded to 188)
-    left_width = int(display_x * 3 / 4)  # 188 pixels
+    top_rect_width = int(display_x / 2)
+
+    top_rect_height = ((display_y * 3 / 4)  - 3)
     
-    # Each rectangle height in left section (4 rectangles with 3 separators of 1 pixel)
-    rect_height = (display_y - 3) // 4  # (122 - 3) / 4 = 29.75, rounded to 29
-    
-    # Draw 4 rectangles in left 3/4 area
+    # Draw 4 rectangles in upper 3/4 area
     for i in range(4):
         x1 = 0
         y1 = i * (rect_height + 1)  # Add 1 pixel separator
@@ -79,21 +77,21 @@ def create_grid_layout(image):
         draw.rectangle([(x1, y1), (x2, y2)], fill=255, outline=0, width=1)
     
     # Right 1/4 area
-    right_start = left_width + 1  # Start after 1 pixel separator
-    right_width = display_x - right_start
+    #right_start = left_width + 1  # Start after 1 pixel separator
+    #right_width = display_x - right_start
     
     # Each rectangle height in right section (2 rectangles with 1 separator)
-    right_rect_height = (display_y - 1) // 2  # (122 - 1) / 2 = 60.5, rounded to 60
+    #right_rect_height = (display_y - 1) // 2  # (122 - 1) / 2 = 60.5, rounded to 60
     
     # Draw 2 rectangles in right 1/4 area
-    for i in range(2):
-        x1 = right_start
-        y1 = i * (right_rect_height + 1)  # Add 1 pixel separator
-        x2 = display_x - 1
-        y2 = y1 + right_rect_height - 1
+    #for i in range(2):
+    #    x1 = right_start
+    #    y1 = i * (right_rect_height + 1)  # Add 1 pixel separator
+    #    x2 = display_x - 1
+    #    y2 = y1 + right_rect_height - 1
         
         # Draw white rectangle with black border
-        draw.rectangle([(x1, y1), (x2, y2)], fill=255, outline=0, width=1)
+    #    draw.rectangle([(x1, y1), (x2, y2)], fill=255, outline=0, width=1)
     
     return image
 
