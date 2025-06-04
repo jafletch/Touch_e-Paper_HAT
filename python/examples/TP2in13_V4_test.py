@@ -62,9 +62,9 @@ def create_grid_layout(image):
     # Clear the entire image to white first
     draw.rectangle([(0, 0), (display_x-1, display_y-1)], fill=255)
     
-    top_rect_width = int(display_y / 2)
+    top_rect_width = int(display_y / 2) - 1
 
-    top_rect_height = int(((display_x * 3 / 4)  - 3))
+    top_rect_height = int(((display_x * 3 / 8)  - 3))
     
     # Draw 4 rectangles in upper 3/4 area
     for i in range(4):
