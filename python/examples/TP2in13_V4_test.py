@@ -69,15 +69,28 @@ try:
     t.start()
 
     # Drawing on the image
-    font15 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 15)
-    font24 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 24)
+    #font15 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 15)
+    #font24 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 24)
     
-    image = Image.open(os.path.join(picdir, 'Menu.bmp'))
-    epd.displayPartBaseImage(epd.getbuffer(image))
+    #image = Image.open(os.path.join(picdir, 'Menu.bmp'))
+    
+    # Create a new white image or load from file
+    image = Image.new('L', (122, 250), 255)  # Create white image (122x250 pixels)
+    # Alternative: image = Image.open(os.path.join(picdir, 'Menu.bmp'))
+    
+    # Create drawing context
     DrawImage = ImageDraw.Draw(image)
+    
+    # Example: Draw some rectangles on the image
+    DrawImage.rectangle([(10, 10), (50, 40)], fill=0)      # Black rectangle
+    DrawImage.rectangle([(60, 10), (100, 40)], fill=128)   # Gray rectangle  
+    DrawImage.rectangle([(10, 50), (100, 80)], outline=0, width=2)  # White rectangle with black border
+
+    epd.displayPartBaseImage(epd.getbuffer(image))
+    # DrawImage = ImageDraw.Draw(image)
     epd.init(epd.PART_UPDATE)
     
-    i = j = k = ReFlag = SelfFlag = Page = Photo_L = Photo_S = 0
+    touchEventCount = partialRefreshes = loopsSinceRefresh = ReFlag = SelfFlag = Page = Photo_L = Photo_S = 0
     PhotoPath_S = [ "Photo_1_0.bmp",
                     "Photo_1_1.bmp", "Photo_1_2.bmp", "Photo_1_3.bmp", "Photo_1_4.bmp",
                     "Photo_1_5.bmp", "Photo_1_6.bmp",
@@ -88,42 +101,42 @@ try:
                     ]
     PagePath = ["Menu.bmp", "White_board.bmp", "Photo_1.bmp", "Photo_2.bmp"]
     
-    while(1):
-        if(i > 12 or ReFlag == 1):
+    while(True):
+        if(touchEventCount > 12 or ReFlag == 1):
             if(Page == 1 and SelfFlag == 0):
                 epd.displayPartial(epd.getbuffer(image))
             else:
                 epd.displayPartial_Wait(epd.getbuffer(image))
-            i = 0
-            k = 0
-            j += 1
+            touchEventCount = 0
+            loopsSinceRefresh = 0
+            partialRefreshes += 1
             ReFlag = 0
             logger.debug("*** Draw Refresh ***")
-        elif(k>50000 and i>0 and Page == 1):
+        elif(loopsSinceRefresh > 50000 and touchEventCount>0 and Page == 1):
             epd.displayPartial(epd.getbuffer(image))
-            i = 0
-            k = 0
-            j += 1
+            touchEventCount = 0
+            loopsSinceRefresh = 0
+            partialRefreshes += 1
             logger.debug("*** Overtime Refresh ***")
-        elif(j > 50 or SelfFlag):
+        elif(partialRefreshes > 50 or SelfFlag):
             SelfFlag = 0
-            j = 0
+            partialRefreshes = 0
             epd.init(epd.FULL_UPDATE)
             epd.displayPartBaseImage(epd.getbuffer(image))
             epd.init(epd.PART_UPDATE)
             logger.info("--- Self Refresh ---")
         else:
-            k += 1
+            loopsSinceRefresh += 1
         # Read the touch input
         gt.GT_Scan(deviceTouchData, oldTouchData)
         if(oldTouchData.X[0] == deviceTouchData.X[0] and oldTouchData.Y[0] == deviceTouchData.Y[0] and oldTouchData.S[0] == deviceTouchData.S[0]):
             continue
         
         if(deviceTouchData.TouchpointFlag):
-            i += 1
+            touchEventCount += 1
             deviceTouchData.TouchpointFlag = 0
 
-            if(Page == 0  and ReFlag == 0):     #main menu
+            if(Page == 0 and ReFlag == 0):     #main menu
                 if(deviceTouchData.X[0] > 29 and deviceTouchData.X[0] < 92 and deviceTouchData.Y[0] > 56 and deviceTouchData.Y[0] < 95):
                     logger.debug("Photo ...")
                     Page = 2
