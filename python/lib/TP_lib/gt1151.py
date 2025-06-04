@@ -43,7 +43,7 @@ class GT1151:
          
     def GT_ReadVersion(self):
         buf = self.GT_Read(0x8140, 4)
-        print(buf)
+        logger.debug(f"GT1151 version: {buf}")
 
     def GT_Init(self):
         self.GT_Reset()

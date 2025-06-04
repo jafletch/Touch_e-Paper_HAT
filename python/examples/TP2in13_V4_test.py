@@ -17,16 +17,17 @@ import traceback
 import threading
 
 logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 flag_t = 1
 
 def pthread_irq() :
-    print("pthread running")
+    logger.info("pthread running")
     while flag_t == 1 :
         if(gt.digital_read(gt.INT) == 0) :
             deviceTouchData.Touch = 1
         else :
             deviceTouchData.Touch = 0
-    print("thread:exit")
+    logger.info("thread:exit")
 
 def Show_Photo_Small(image, small):
     for t in range(1, 5):
@@ -50,14 +51,14 @@ def Read_BMP(File, x, y):
     image.paste(newimage, (x, y))
 
 try:
-    logging.info("epd2in13_V4 Touch Demo")
+    logger.info("epd2in13_V4 Touch Demo")
     
     epd = epd2in13_V4.EPD()
     gt = gt1151.GT1151()
     deviceTouchData = gt1151.GT_Development()
     oldTouchData = gt1151.GT_Development()
     
-    logging.info("init and Clear")
+    logger.info("init and Clear")
     
     epd.init(epd.FULL_UPDATE)
     gt.GT_Init()
@@ -97,20 +98,20 @@ try:
             k = 0
             j += 1
             ReFlag = 0
-            print("*** Draw Refresh ***\r\n")
+            logger.debug("*** Draw Refresh ***")
         elif(k>50000 and i>0 and Page == 1):
             epd.displayPartial(epd.getbuffer(image))
             i = 0
             k = 0
             j += 1
-            print("*** Overtime Refresh ***\r\n")
+            logger.debug("*** Overtime Refresh ***")
         elif(j > 50 or SelfFlag):
             SelfFlag = 0
             j = 0
             epd.init(epd.FULL_UPDATE)
             epd.displayPartBaseImage(epd.getbuffer(image))
             epd.init(epd.PART_UPDATE)
-            print("--- Self Refresh ---\r\n")
+            logger.info("--- Self Refresh ---")
         else:
             k += 1
         # Read the touch input
@@ -124,13 +125,13 @@ try:
 
             if(Page == 0  and ReFlag == 0):     #main menu
                 if(deviceTouchData.X[0] > 29 and deviceTouchData.X[0] < 92 and deviceTouchData.Y[0] > 56 and deviceTouchData.Y[0] < 95):
-                    print("Photo ...\r\n")
+                    logger.debug("Photo ...")
                     Page = 2
                     Read_BMP(PagePath[Page], 0, 0)
                     Show_Photo_Small(image, Photo_S)
                     ReFlag = 1
                 elif(deviceTouchData.X[0] > 29 and deviceTouchData.X[0] < 92 and deviceTouchData.Y[0] > 153 and deviceTouchData.Y[0] < 193): 
-                    print("Draw ...\r\n")
+                    logger.debug("Draw ...")
                     Page = 1
                     Read_BMP(PagePath[Page], 0, 0)
                     ReFlag = 1
@@ -139,46 +140,46 @@ try:
             if(Page == 1 and ReFlag == 0):   #white board
                 DrawImage.rectangle([(deviceTouchData.X[0], deviceTouchData.Y[0]), (deviceTouchData.X[0] + deviceTouchData.S[0]/8 + 1, deviceTouchData.Y[0] + deviceTouchData.S[0]/8 + 1)], fill=0)
                 if(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 118 and deviceTouchData.Y[0] > 6 and deviceTouchData.Y[0] < 30): 
-                    print("Home ...\r\n")
+                    logger.debug("Home ...")
                     Page = 1
                     Read_BMP(PagePath[Page], 0, 0)
                     ReFlag = 1
                 elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 118 and deviceTouchData.Y[0] > 113 and deviceTouchData.Y[0] < 136): 
-                    print("Clear ...\r\n")
+                    logger.debug("Clear ...")
                     Page = 0
                     Read_BMP(PagePath[Page], 0, 0)
                     ReFlag = 1
                 elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 118 and deviceTouchData.Y[0] > 220 and deviceTouchData.Y[0] < 242): 
-                    print("Refresh ...\r\n")
+                    logger.debug("Refresh ...")
                     SelfFlag = 1
                     ReFlag = 1
                 
             
             if(Page == 2  and ReFlag == 0):  #photo menu
                 if(deviceTouchData.X[0] > 97 and deviceTouchData.X[0] < 119 and deviceTouchData.Y[0] > 113 and deviceTouchData.Y[0] < 136): 
-                    print("Home ...\r\n")
+                    logger.debug("Home ...")
                     Page = 0
                     Read_BMP(PagePath[Page], 0, 0)
                     ReFlag = 1
                 elif(deviceTouchData.X[0] > 97 and deviceTouchData.X[0] < 119 and deviceTouchData.Y[0] > 57 and deviceTouchData.Y[0] < 78): 
-                    print("Next page ...\r\n")
+                    logger.debug("Next page ...")
                     Photo_S += 1
                     if(Photo_S > 2): # 6 photos is a maximum of three pages
                         Photo_S=0
                     ReFlag = 2
                 elif(deviceTouchData.X[0] > 97 and deviceTouchData.X[0] < 119 and deviceTouchData.Y[0] > 169 and deviceTouchData.Y[0] < 190): 
-                    print("Last page ...\r\n")
+                    logger.debug("Last page ...")
                     if(Photo_S == 0):
-                        print("Top page ...\r\n")
+                        logger.debug("Top page ...")
                     else:
                         Photo_S -= 1
                         ReFlag = 2
                 elif(deviceTouchData.X[0] > 97 and deviceTouchData.X[0] < 119 and deviceTouchData.Y[0] > 220 and deviceTouchData.Y[0] < 242): 
-                    print("Refresh ...\r\n")
+                    logger.debug("Refresh ...")
                     SelfFlag = 1
                     ReFlag = 1
                 elif(deviceTouchData.X[0] > 2 and deviceTouchData.X[0] < 90 and deviceTouchData.Y[0] > 2 and deviceTouchData.Y[0] < 248 and ReFlag == 0):
-                    print("Select photo ...\r\n")
+                    logger.debug("Select photo ...")
                     Page = 3
                     Read_BMP(PagePath[Page], 0, 0)
                     Photo_L = int(deviceTouchData.X[0]/46*2 + 2-deviceTouchData.Y[0]/124 + Photo_S*2)
@@ -192,31 +193,31 @@ try:
             
             if(Page == 3  and ReFlag == 0):     #view the photo
                 if(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 117 and deviceTouchData.Y[0] > 4 and deviceTouchData.Y[0] < 25): 
-                    print("Photo menu ...\r\n")
+                    logger.debug("Photo menu ...")
                     Page = 2
                     Read_BMP(PagePath[Page], 0, 0)
                     Show_Photo_Small(image, Photo_S)
                     ReFlag = 1
                 elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 117 and deviceTouchData.Y[0] > 57 and deviceTouchData.Y[0] < 78): 
-                    print("Next photo ...\r\n")
+                    logger.debug("Next photo ...")
                     Photo_L += 1
                     if(Photo_L > 6):
                         Photo_L = 1
                     ReFlag = 2
                 elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 117 and deviceTouchData.Y[0] > 113 and deviceTouchData.Y[0] < 136): 
-                    print("Home ...\r\n")
+                    logger.debug("Home ...")
                     Page = 0
                     Read_BMP(PagePath[Page], 0, 0)
                     ReFlag = 1
                 elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 117 and deviceTouchData.Y[0] > 169 and deviceTouchData.Y[0] < 190): 
-                    print("Last page ...\r\n")
+                    logger.debug("Last page ...")
                     if(Photo_L == 1):
-                        print("Top photo ...\r\n")
+                        logger.debug("Top photo ...")
                     else: 
                         Photo_L -= 1
                         ReFlag = 2
                 elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 117 and deviceTouchData.Y[0] > 220 and deviceTouchData.Y[0] < 242): 
-                    print("Refresh photo ...\r\n")
+                    logger.debug("Refresh photo ...")
                     SelfFlag = 1
                     ReFlag = 1
                 if(ReFlag == 2):    # Refresh large photo
@@ -224,10 +225,10 @@ try:
                     Show_Photo_Large(image, Photo_L)
                 
 except IOError as e:
-    logging.info(e)
+    logger.exception("IOError")
     
 except KeyboardInterrupt:    
-    logging.info("ctrl + c:")
+    logger.info("ctrl + c:")
     flag_t = 0
     epd.sleep()
     time.sleep(2)
