@@ -68,9 +68,9 @@ def create_grid_layout(image):
     
     # Draw 4 rectangles in upper 3/4 area
     for i in range(4):
-        x1 = ((i + 1) % 2) * (top_rect_height + 1)  # Add 1 pixel separator
-        y1 = ((i + 1) % 2) * (top_rect_width + 1)  # Add 1 pixel separator
-        x2 = x1 * top_rect_height - 1
+        x1 = ((i + 2) % 2) * (top_rect_height + 1)  # Add 1 pixel separator
+        y1 = ((i + 2) % 2) + (top_rect_width + 1)  # Add 1 pixel separator
+        x2 = x1 + top_rect_height - 1
         y2 = y1 + top_rect_width - 1
         logger.debug(f"Drawing rectangle {i}: ({x1}, {y1}) to ({x2}, {y2})")
         
