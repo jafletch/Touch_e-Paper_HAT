@@ -86,7 +86,7 @@ def create_grid_layout(image):
     top_rect_height = int(((display_x * 3 / 7)  - 3))
     
     rect_labels = ["C Wall", "C End", "D Wall", "D End"]
-    font = ImageFont.load_default(size=16)  # Load default font
+    font = ImageFont.load_default(16)  # Load default font
     # Draw 4 rectangles in upper 3/4 area
     for i in range(4):
         x1 = (0 if i < 2 else 1) * (top_rect_height + 1) + 1  # Add 1 pixel separator
