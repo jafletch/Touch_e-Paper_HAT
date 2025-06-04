@@ -1,6 +1,8 @@
 import logging
 from . import epdconfig as config
 
+logger = logging.getLogger(__name__)
+
 class GT_Development:
     def __init__(self):
         self.Touch = 0
@@ -80,5 +82,5 @@ class GT1151:
                     GT_Dev.Y[i] = (buf[4 + 8*i] << 8) + buf[3 + 8*i]
                     GT_Dev.S[i] = (buf[6 + 8*i] << 8) + buf[5 + 8*i]
 
-                logging.debug(f"X: {GT_Dev.X[0]}, Y: {GT_Dev.Y[0]}, S: {GT_Dev.S[0]}")
+                logger.debug(f"X: {GT_Dev.X[0]}, Y: {GT_Dev.Y[0]}, S: {GT_Dev.S[0]}")
                 
