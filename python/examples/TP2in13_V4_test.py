@@ -66,6 +66,8 @@ def create_grid_layout(image):
 
     top_rect_height = int(((display_x * 3 / 7)  - 3))
     
+    rect_labels = ["C Wall", "C End", "D Wall", "D End"]
+
     # Draw 4 rectangles in upper 3/4 area
     for i in range(4):
         x1 = (0 if i < 2 else 1) * (top_rect_height + 1) + 1  # Add 1 pixel separator
@@ -76,24 +78,24 @@ def create_grid_layout(image):
         
         # Draw white rectangle with black border
         draw.rectangle([(x1, y1), (x2, y2)], fill=255, outline=0, width=1)
-    
-    # Right 1/4 area
-    #right_start = left_width + 1  # Start after 1 pixel separator
-    #right_width = display_x - right_start
-    
-    # Each rectangle height in right section (2 rectangles with 1 separator)
-    #right_rect_height = (display_y - 1) // 2  # (122 - 1) / 2 = 60.5, rounded to 60
-    
-    # Draw 2 rectangles in right 1/4 area
-    #for i in range(2):
-    #    x1 = right_start
-    #    y1 = i * (right_rect_height + 1)  # Add 1 pixel separator
-    #    x2 = display_x - 1
-    #    y2 = y1 + right_rect_height - 1
+
+        # Calculate center position for text
+        center_x = (x1 + x2) // 2
+        center_y = (y1 + y2) // 2
         
-        # Draw white rectangle with black border
-    #    draw.rectangle([(x1, y1), (x2, y2)], fill=255, outline=0, width=1)
-    
+        # Get text dimensions for centering
+        text = rect_labels[i]
+        bbox = draw.textbbox((0, 0), text, font=font)
+        text_width = bbox[2] - bbox[0]
+        text_height = bbox[3] - bbox[1]
+        
+        # Calculate text position (top-left corner for centered text)
+        text_x = center_x - text_width // 2
+        text_y = center_y - text_height // 2
+        
+        # Draw centered text
+        draw.text((text_x, text_y), text, font=font, fill=0)
+
     return image
 
 try:
