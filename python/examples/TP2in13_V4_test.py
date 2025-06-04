@@ -72,6 +72,7 @@ def create_grid_layout(image):
         y1 = ((i + 1) % 2) * (top_rect_width + 1)  # Add 1 pixel separator
         x2 = x1 * top_rect_height - 1
         y2 = y1 + top_rect_width - 1
+        logger.debug(f"Drawing rectangle {i}: ({x1}, {y1}) to ({x2}, {y2})")
         
         # Draw white rectangle with black border
         draw.rectangle([(x1, y1), (x2, y2)], fill=255, outline=0, width=1)
