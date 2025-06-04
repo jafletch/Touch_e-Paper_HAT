@@ -56,8 +56,8 @@ def create_grid_layout(image):
     
     # Display dimensions - swapped coordinate system
     # width (122) now maps to Y-axis, height (250) now maps to X-axis
-    display_x = 250  # height becomes X dimension
-    display_y = 122  # width becomes Y dimension
+    display_x = 122  # height becomes X dimension
+    display_y = 250  # width becomes Y dimension
     
     # Clear the entire image to white first
     draw.rectangle([(0, 0), (display_x-1, display_y-1)], fill=255)
@@ -68,10 +68,10 @@ def create_grid_layout(image):
     
     # Draw 4 rectangles in upper 3/4 area
     for i in range(4):
-        x1 = 1 # i * (top_rect_height + 1)  # Add 1 pixel separator
-        y1 = 1
-        x2 = 10 # y1 + top_rect_height - 1
-        y2 = 30 # top_rect_width - 1
+        x1 = 0 # i * (top_rect_height + 1)  # Add 1 pixel separator
+        y1 = (i % 2) * (top_rect_width + 1)  # Add 1 pixel separator
+        x2 = top_rect_height - 1
+        y2 = top_rect_width - 1
         
         # Draw white rectangle with black border
         draw.rectangle([(x1, y1), (x2, y2)], fill=255, outline=0, width=1)
