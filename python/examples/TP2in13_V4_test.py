@@ -69,9 +69,9 @@ def create_grid_layout(image):
     # Draw 4 rectangles in upper 3/4 area
     for i in range(4):
         x1 = 0
-        y1 = i * (rect_height + 1)  # Add 1 pixel separator
-        x2 = left_width - 1
-        y2 = y1 + rect_height - 1
+        y1 = i * (top_rect_height + 1)  # Add 1 pixel separator
+        x2 = top_rect_width - 1
+        y2 = y1 + top_rect_height - 1
         
         # Draw white rectangle with black border
         draw.rectangle([(x1, y1), (x2, y2)], fill=255, outline=0, width=1)
