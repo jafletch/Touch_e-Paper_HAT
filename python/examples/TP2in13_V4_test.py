@@ -102,7 +102,7 @@ def create_grid_layout(image):
         center_x = (x1 + x2) // 2
         center_y = (y1 + y2) // 2
         
-        text = prepare_text(draw, rect_labels[i], font)
+        text = prepare_text(rect_labels[i], font)
         text_width, text_height = text.size
 
         # Calculate text position (top-left corner for centered text)
