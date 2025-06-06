@@ -207,6 +207,7 @@ try:
                 if button_spec.isPressed(deviceTouchData.X[0], deviceTouchData.Y[0]):
                     logger.debug(f"Button {button_spec.name} pressed at ({deviceTouchData.X[0]}, {deviceTouchData.Y[0]})")
                     toggle_button(image, button_spec, font)
+                    ReFlag = 1
                     break
                 
 except IOError as e:
