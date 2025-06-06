@@ -69,8 +69,8 @@ def toggle_button(image, button_spec, font):
     draw.rectangle([(0, 0), (x_size-1, y_size-1)], fill=(255 if isWhite else 0), outline=(0 if isWhite else 255), width=1)
 
     # Calculate center position for text
-    center_x = (button_spec.xmin + button_spec.xmax) // 2
-    center_y = (button_spec.ymin + button_spec.ymax) // 2
+    center_x = x_size // 2
+    center_y = y_size // 2
     
     text = prepare_text(button_spec.name, font, isWhite)
     text_width, text_height = text.size
