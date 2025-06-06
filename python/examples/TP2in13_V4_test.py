@@ -50,11 +50,11 @@ def prepare_text(text, font, isWhite=True):
     text_height = bbox[3] - bbox[1]
     
     # Create image for the text
-    text_img = Image.new('L', (text_width + 4, text_height + 4), 255 if isWhite else 0)  # Add padding
+    text_img = Image.new('L', (text_width + 4, text_height + 4), 255 if isWhite else 0)
     text_draw = ImageDraw.Draw(text_img)
     
     # Draw text
-    text_draw.text((2, 2), text, font=font, fill=(0 if isWhite else 255))  # Fill with black if white background
+    text_draw.text((2, 2), text, font=font, fill=(0 if isWhite else 255))
     
     # Rotate and return
     return text_img.rotate(90, expand=True)
@@ -64,7 +64,6 @@ def toggle_button(image, button_spec, font):
     y_size = button_spec.ymax - button_spec.ymin + 1
     isWhite = not button_spec.isWhite
     button_image = Image.new('L', (x_size, y_size), 255 if isWhite else 0)
-    text = prepare_text(button_spec.name, font)
 
     draw = ImageDraw.Draw(button_image)
     draw.rectangle([(0, 0), (x_size-1, y_size-1)], fill=(255 if isWhite else 0), outline=(0 if isWhite else 255), width=1)
