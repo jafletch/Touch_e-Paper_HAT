@@ -139,14 +139,14 @@ def create_grid_layout(image, font):
 
 
     on_text = prepare_text("ON", font_small, isWhite=False)
-    on_text_width, on_text_height = text.size
+    on_text_width, on_text_height = on_text.size
     on_text_x = bottom_area_top + bottom_area_height // 2 - on_text_height // 2
     on_text_y = 187 - on_text_width // 2
     logger.debug(f"On text: height = {on_text_height} width = {on_text_width} x = {on_text_x}, y = {on_text_y}")
     image.paste(on_text, (on_text_x, on_text_y))
 
     off_text = prepare_text("OFF", font_small, isWhite=False)
-    off_text_width, off_text_height = text.size
+    off_text_width, off_text_height = off_text.size
     off_text_x = on_text_x
     off_text_y = 63 - off_text_width // 2
     logger.debug(f"Off text: height = {off_text_height} width = {off_text_width} x = {off_text_x}, y = {off_text_y}")
