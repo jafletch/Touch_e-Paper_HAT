@@ -12,11 +12,13 @@ from TP_lib import epd2in13_V4
 import time
 import logging
 from PIL import Image,ImageDraw,ImageFont
-import traceback
+
 import threading
+from systemd import journal
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+logger.addHandler(journal.JournalHandler(SYSLOG_IDENTIFIER='heater_controller', level=logging.DEBUG))
 flag_t = 1
 
 font_large = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 16)
