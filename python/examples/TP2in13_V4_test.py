@@ -20,6 +20,17 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 flag_t = 1
 
+class ButtonBounds:
+    def __init__(self, name, xmin, ymin, xmax, ymax):
+        self.name = name
+        self.xmin = xmin
+        self.ymin = ymin
+        self.xmax = xmax
+        self.ymax = ymax
+
+    def isPressed(self, x, y):
+        return self.xmin <= x <= self.xmax and self.ymin <= y <= self.ymax
+
 def pthread_irq() :
     logger.info("pthread running")
     while flag_t == 1 :
@@ -29,7 +40,7 @@ def pthread_irq() :
             deviceTouchData.Touch = 0
     logger.info("thread:exit")
 
-def Show_Photo_Small(image, small):
+""" def Show_Photo_Small(image, small):
     for t in range(1, 5):
         if(small*2+t > 6):
             newimage = Image.open(os.path.join(picdir, PhotoPath_S[0]))
@@ -48,7 +59,7 @@ def Show_Photo_Large(image, large):
 
 def Read_BMP(File, x, y):
     newimage = Image.open(os.path.join(picdir, File))
-    image.paste(newimage, (x, y))
+    image.paste(newimage, (x, y)) """
 
 def prepare_text(text, font):
     """Create a rotated text image"""
@@ -86,12 +97,15 @@ def create_grid_layout(image, font):
     top_rect_height = int(((display_x * 3 / 7)  - 3))
     
     rect_labels = ["C Wall", "C End", "D Wall", "D End"]
+    button_bounds = []
     # Draw 4 rectangles in upper 3/4 area
     for i in range(4):
+        button_name = rect_labels[i]
         x1 = (0 if i < 2 else 1) * (top_rect_height + 1) + 1  # Add 1 pixel separator
         y1 = ((i + 2) % 2) * (top_rect_width + 1)  # Add 1 pixel separator
         x2 = x1 + top_rect_height - 1
         y2 = y1 + top_rect_width - 1
+        button_bounds.append(ButtonBounds(button_name, x1, y1, x2, y2))
         logger.debug(f"Drawing rectangle {i}: ({x1}, {y1}) to ({x2}, {y2})")
         
         # Draw white rectangle with black border
@@ -101,7 +115,7 @@ def create_grid_layout(image, font):
         center_x = (x1 + x2) // 2
         center_y = (y1 + y2) // 2
         
-        text = prepare_text(rect_labels[i], font)
+        text = prepare_text(button_name, font)
         text_width, text_height = text.size
 
         # Calculate text position (top-left corner for centered text)
@@ -111,10 +125,10 @@ def create_grid_layout(image, font):
         # Draw centered text
         image.paste(text, (text_x, text_y))
 
-    return image
+    return button_bounds
 
 try:
-    logger.info("epd2in13_V4 Touch Demo")
+    logger.info("Wall Heater Controller")
     
     epd = epd2in13_V4.EPD()
     gt = gt1151.GT1151()
@@ -132,34 +146,30 @@ try:
     t.start()
 
     # Drawing on the image
-    #font = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 18)
     font = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 16)
     
-    #image = Image.open(os.path.join(picdir, 'Menu.bmp'))
-    
-    # Create a new white image
+        # Create a new white image
     image = Image.new('L', (122, 250), 255)  # Create white image (122x250 pixels)
     
     # Create the grid layout
-    create_grid_layout(image, font)
+    button_bounds = create_grid_layout(image, font)
     
     # Create drawing context
     DrawImage = ImageDraw.Draw(image)
 
     epd.displayPartBaseImage(epd.getbuffer(image))
-    # DrawImage = ImageDraw.Draw(image)
     epd.init(epd.PART_UPDATE)
     
     touchEventCount = partialRefreshes = loopsSinceRefresh = ReFlag = SelfFlag = Page = Photo_L = Photo_S = 0
-    PhotoPath_S = [ "Photo_1_0.bmp",
-                    "Photo_1_1.bmp", "Photo_1_2.bmp", "Photo_1_3.bmp", "Photo_1_4.bmp",
-                    "Photo_1_5.bmp", "Photo_1_6.bmp",
-                    ]
-    PhotoPath_L = [ "Photo_2_0.bmp",
-                    "Photo_2_1.bmp", "Photo_2_2.bmp", "Photo_2_3.bmp", "Photo_2_4.bmp",
-                    "Photo_2_5.bmp", "Photo_2_6.bmp",
-                    ]
-    PagePath = ["Menu.bmp", "White_board.bmp", "Photo_1.bmp", "Photo_2.bmp"]
+    # PhotoPath_S = [ "Photo_1_0.bmp",
+    #                 "Photo_1_1.bmp", "Photo_1_2.bmp", "Photo_1_3.bmp", "Photo_1_4.bmp",
+    #                 "Photo_1_5.bmp", "Photo_1_6.bmp",
+    #                 ]
+    # PhotoPath_L = [ "Photo_2_0.bmp",
+    #                 "Photo_2_1.bmp", "Photo_2_2.bmp", "Photo_2_3.bmp", "Photo_2_4.bmp",
+    #                 "Photo_2_5.bmp", "Photo_2_6.bmp",
+    #                 ]
+    #PagePath = ["Menu.bmp", "White_board.bmp", "Photo_1.bmp", "Photo_2.bmp"]
     
     while(True):
         if(touchEventCount > 12 or ReFlag == 1):
@@ -196,110 +206,116 @@ try:
             touchEventCount += 1
             deviceTouchData.TouchpointFlag = 0
 
-            if(Page == 0 and ReFlag == 0):     #main menu
-                if(deviceTouchData.X[0] > 29 and deviceTouchData.X[0] < 92 and deviceTouchData.Y[0] > 56 and deviceTouchData.Y[0] < 95):
-                    logger.debug("Photo ...")
-                    Page = 2
-                    Read_BMP(PagePath[Page], 0, 0)
-                    Show_Photo_Small(image, Photo_S)
-                    ReFlag = 1
-                elif(deviceTouchData.X[0] > 29 and deviceTouchData.X[0] < 92 and deviceTouchData.Y[0] > 153 and deviceTouchData.Y[0] < 193): 
-                    logger.debug("Draw ...")
-                    Page = 1
-                    Read_BMP(PagePath[Page], 0, 0)
-                    ReFlag = 1
-                elif(deviceTouchData.X[0] > 0 and deviceTouchData.X[0] < 25 and deviceTouchData.Y[0] > 0 and deviceTouchData.Y[0] < 25):
-                    logger.debug("Grid layout ...")
-                    create_grid_layout(image)
-                    ReFlag = 1
+            for button_bound in button_bounds:
+                if button_bound.isPressed(deviceTouchData.X[0], deviceTouchData.Y[0]):
+                    logger.debug(f"Button {button_bound.name} pressed at ({deviceTouchData.X[0]}, {deviceTouchData.Y[0]})")
+                    # Handle button press here if needed
+                    break
+
+            # if(Page == 0 and ReFlag == 0):     #main menu
+            #     if(deviceTouchData.X[0] > 29 and deviceTouchData.X[0] < 92 and deviceTouchData.Y[0] > 56 and deviceTouchData.Y[0] < 95):
+            #         logger.debug("Photo ...")
+            #         Page = 2
+            #         #Read_BMP(PagePath[Page], 0, 0)
+            #         #Show_Photo_Small(image, Photo_S)
+            #         ReFlag = 1
+            #     elif(deviceTouchData.X[0] > 29 and deviceTouchData.X[0] < 92 and deviceTouchData.Y[0] > 153 and deviceTouchData.Y[0] < 193): 
+            #         logger.debug("Draw ...")
+            #         Page = 1
+            #         #Read_BMP(PagePath[Page], 0, 0)
+            #         ReFlag = 1
+            #     elif(deviceTouchData.X[0] > 0 and deviceTouchData.X[0] < 25 and deviceTouchData.Y[0] > 0 and deviceTouchData.Y[0] < 25):
+            #         logger.debug("Grid layout ...")
+            #         create_grid_layout(image)
+            #         ReFlag = 1
                 
             
-            if(Page == 1 and ReFlag == 0):   #white board
-                DrawImage.rectangle([(deviceTouchData.X[0], deviceTouchData.Y[0]), (deviceTouchData.X[0] + deviceTouchData.S[0]/8 + 1, deviceTouchData.Y[0] + deviceTouchData.S[0]/8 + 1)], fill=0)
-                if(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 118 and deviceTouchData.Y[0] > 6 and deviceTouchData.Y[0] < 30): 
-                    logger.debug("Home ...")
-                    Page = 1
-                    Read_BMP(PagePath[Page], 0, 0)
-                    ReFlag = 1
-                elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 118 and deviceTouchData.Y[0] > 113 and deviceTouchData.Y[0] < 136): 
-                    logger.debug("Clear ...")
-                    Page = 0
-                    Read_BMP(PagePath[Page], 0, 0)
-                    ReFlag = 1
-                elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 118 and deviceTouchData.Y[0] > 220 and deviceTouchData.Y[0] < 242): 
-                    logger.debug("Refresh ...")
-                    SelfFlag = 1
-                    ReFlag = 1
+            # if(Page == 1 and ReFlag == 0):   #white board
+            #     DrawImage.rectangle([(deviceTouchData.X[0], deviceTouchData.Y[0]), (deviceTouchData.X[0] + deviceTouchData.S[0]/8 + 1, deviceTouchData.Y[0] + deviceTouchData.S[0]/8 + 1)], fill=0)
+            #     if(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 118 and deviceTouchData.Y[0] > 6 and deviceTouchData.Y[0] < 30): 
+            #         logger.debug("Home ...")
+            #         Page = 1
+            #         #Read_BMP(PagePath[Page], 0, 0)
+            #         ReFlag = 1
+            #     elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 118 and deviceTouchData.Y[0] > 113 and deviceTouchData.Y[0] < 136): 
+            #         logger.debug("Clear ...")
+            #         Page = 0
+            #         #Read_BMP(PagePath[Page], 0, 0)
+            #         ReFlag = 1
+            #     elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 118 and deviceTouchData.Y[0] > 220 and deviceTouchData.Y[0] < 242): 
+            #         logger.debug("Refresh ...")
+            #         SelfFlag = 1
+            #         ReFlag = 1
                 
             
-            if(Page == 2  and ReFlag == 0):  #photo menu
-                if(deviceTouchData.X[0] > 97 and deviceTouchData.X[0] < 119 and deviceTouchData.Y[0] > 113 and deviceTouchData.Y[0] < 136): 
-                    logger.debug("Home ...")
-                    Page = 0
-                    Read_BMP(PagePath[Page], 0, 0)
-                    ReFlag = 1
-                elif(deviceTouchData.X[0] > 97 and deviceTouchData.X[0] < 119 and deviceTouchData.Y[0] > 57 and deviceTouchData.Y[0] < 78): 
-                    logger.debug("Next page ...")
-                    Photo_S += 1
-                    if(Photo_S > 2): # 6 photos is a maximum of three pages
-                        Photo_S=0
-                    ReFlag = 2
-                elif(deviceTouchData.X[0] > 97 and deviceTouchData.X[0] < 119 and deviceTouchData.Y[0] > 169 and deviceTouchData.Y[0] < 190): 
-                    logger.debug("Last page ...")
-                    if(Photo_S == 0):
-                        logger.debug("Top page ...")
-                    else:
-                        Photo_S -= 1
-                        ReFlag = 2
-                elif(deviceTouchData.X[0] > 97 and deviceTouchData.X[0] < 119 and deviceTouchData.Y[0] > 220 and deviceTouchData.Y[0] < 242): 
-                    logger.debug("Refresh ...")
-                    SelfFlag = 1
-                    ReFlag = 1
-                elif(deviceTouchData.X[0] > 2 and deviceTouchData.X[0] < 90 and deviceTouchData.Y[0] > 2 and deviceTouchData.Y[0] < 248 and ReFlag == 0):
-                    logger.debug("Select photo ...")
-                    Page = 3
-                    Read_BMP(PagePath[Page], 0, 0)
-                    Photo_L = int(deviceTouchData.X[0]/46*2 + 2-deviceTouchData.Y[0]/124 + Photo_S*2)
-                    Show_Photo_Large(image, Photo_L)
-                    ReFlag = 1
-                if(ReFlag == 2):  # Refresh small photo
-                    ReFlag = 1
-                    Read_BMP(PagePath[Page], 0, 0)
-                    Show_Photo_Small(image, Photo_S)   # show small photo
+            # if(Page == 2  and ReFlag == 0):  #photo menu
+            #     if(deviceTouchData.X[0] > 97 and deviceTouchData.X[0] < 119 and deviceTouchData.Y[0] > 113 and deviceTouchData.Y[0] < 136): 
+            #         logger.debug("Home ...")
+            #         Page = 0
+            #         #Read_BMP(PagePath[Page], 0, 0)
+            #         ReFlag = 1
+            #     elif(deviceTouchData.X[0] > 97 and deviceTouchData.X[0] < 119 and deviceTouchData.Y[0] > 57 and deviceTouchData.Y[0] < 78): 
+            #         logger.debug("Next page ...")
+            #         Photo_S += 1
+            #         if(Photo_S > 2): # 6 photos is a maximum of three pages
+            #             Photo_S=0
+            #         ReFlag = 2
+            #     elif(deviceTouchData.X[0] > 97 and deviceTouchData.X[0] < 119 and deviceTouchData.Y[0] > 169 and deviceTouchData.Y[0] < 190): 
+            #         logger.debug("Last page ...")
+            #         if(Photo_S == 0):
+            #             logger.debug("Top page ...")
+            #         else:
+            #             Photo_S -= 1
+            #             ReFlag = 2
+            #     elif(deviceTouchData.X[0] > 97 and deviceTouchData.X[0] < 119 and deviceTouchData.Y[0] > 220 and deviceTouchData.Y[0] < 242): 
+            #         logger.debug("Refresh ...")
+            #         SelfFlag = 1
+            #         ReFlag = 1
+            #     elif(deviceTouchData.X[0] > 2 and deviceTouchData.X[0] < 90 and deviceTouchData.Y[0] > 2 and deviceTouchData.Y[0] < 248 and ReFlag == 0):
+            #         logger.debug("Select photo ...")
+            #         Page = 3
+            #         #Read_BMP(PagePath[Page], 0, 0)
+            #         Photo_L = int(deviceTouchData.X[0]/46*2 + 2-deviceTouchData.Y[0]/124 + Photo_S*2)
+            #         #Show_Photo_Large(image, Photo_L)
+            #         ReFlag = 1
+            #     if(ReFlag == 2):  # Refresh small photo
+            #         ReFlag = 1
+            #         #Read_BMP(PagePath[Page], 0, 0)
+            #         #Show_Photo_Small(image, Photo_S)   # show small photo
                 
             
-            if(Page == 3  and ReFlag == 0):     #view the photo
-                if(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 117 and deviceTouchData.Y[0] > 4 and deviceTouchData.Y[0] < 25): 
-                    logger.debug("Photo menu ...")
-                    Page = 2
-                    Read_BMP(PagePath[Page], 0, 0)
-                    Show_Photo_Small(image, Photo_S)
-                    ReFlag = 1
-                elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 117 and deviceTouchData.Y[0] > 57 and deviceTouchData.Y[0] < 78): 
-                    logger.debug("Next photo ...")
-                    Photo_L += 1
-                    if(Photo_L > 6):
-                        Photo_L = 1
-                    ReFlag = 2
-                elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 117 and deviceTouchData.Y[0] > 113 and deviceTouchData.Y[0] < 136): 
-                    logger.debug("Home ...")
-                    Page = 0
-                    Read_BMP(PagePath[Page], 0, 0)
-                    ReFlag = 1
-                elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 117 and deviceTouchData.Y[0] > 169 and deviceTouchData.Y[0] < 190): 
-                    logger.debug("Last page ...")
-                    if(Photo_L == 1):
-                        logger.debug("Top photo ...")
-                    else: 
-                        Photo_L -= 1
-                        ReFlag = 2
-                elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 117 and deviceTouchData.Y[0] > 220 and deviceTouchData.Y[0] < 242): 
-                    logger.debug("Refresh photo ...")
-                    SelfFlag = 1
-                    ReFlag = 1
-                if(ReFlag == 2):    # Refresh large photo
-                    ReFlag = 1
-                    Show_Photo_Large(image, Photo_L)
+            # if(Page == 3  and ReFlag == 0):     #view the photo
+            #     if(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 117 and deviceTouchData.Y[0] > 4 and deviceTouchData.Y[0] < 25): 
+            #         logger.debug("Photo menu ...")
+            #         Page = 2
+            #         #Read_BMP(PagePath[Page], 0, 0)
+            #         #Show_Photo_Small(image, Photo_S)
+            #         ReFlag = 1
+            #     elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 117 and deviceTouchData.Y[0] > 57 and deviceTouchData.Y[0] < 78): 
+            #         logger.debug("Next photo ...")
+            #         Photo_L += 1
+            #         if(Photo_L > 6):
+            #             Photo_L = 1
+            #         ReFlag = 2
+            #     elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 117 and deviceTouchData.Y[0] > 113 and deviceTouchData.Y[0] < 136): 
+            #         logger.debug("Home ...")
+            #         Page = 0
+            #         #Read_BMP(PagePath[Page], 0, 0)
+            #         ReFlag = 1
+            #     elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 117 and deviceTouchData.Y[0] > 169 and deviceTouchData.Y[0] < 190): 
+            #         logger.debug("Last page ...")
+            #         if(Photo_L == 1):
+            #             logger.debug("Top photo ...")
+            #         else: 
+            #             Photo_L -= 1
+            #             ReFlag = 2
+            #     elif(deviceTouchData.X[0] > 96 and deviceTouchData.X[0] < 117 and deviceTouchData.Y[0] > 220 and deviceTouchData.Y[0] < 242): 
+            #         logger.debug("Refresh photo ...")
+            #         SelfFlag = 1
+            #         ReFlag = 1
+            #     if(ReFlag == 2):    # Refresh large photo
+            #         ReFlag = 1
+            #         #Show_Photo_Large(image, Photo_L)
                 
 except IOError as e:
     logger.exception("IOError")
