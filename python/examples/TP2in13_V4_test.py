@@ -240,6 +240,9 @@ try:
                     elif button_spec.name == "ON":
                         logger.debug("Button ON pressed")
                         for spec in button_specs:
+                            if spec.name == "D Wall":
+                                logger.debug(f"All-on does not include D Wall")
+                                break
                             if not spec.isOn and spec.supports_toggle:
                                 logger.debug(f"Toggling button {spec.name} ON")
                                 toggle_button(image, spec, font_large)
