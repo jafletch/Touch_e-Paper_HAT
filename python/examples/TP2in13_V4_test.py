@@ -40,7 +40,7 @@ def pthread_irq() :
             deviceTouchData.Touch = 0
     logger.info("thread:exit")
 
-def prepare_text(text, font, isWhite):
+def prepare_text(text, font, isWhite=True):
     """Create a rotated text image"""
     # Create temporary image for text measurement
     temp_img = Image.new('L', (1, 1))
