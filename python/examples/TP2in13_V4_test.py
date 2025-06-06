@@ -231,7 +231,7 @@ try:
             deviceTouchData.TouchpointFlag = 0
 
             for button_spec in button_specs:
-                if button_spec.isPressed(deviceTouchData.X[0], deviceTouchData.Y[0]) and button_spec.supports_toggle:
+                if button_spec.isPressed(deviceTouchData.X[0], deviceTouchData.Y[0]):
                     logger.debug(f"Button {button_spec.name} pressed at ({deviceTouchData.X[0]}, {deviceTouchData.Y[0]})")
                     if button_spec.supports_toggle:
                         toggle_button(image, button_spec, font_large)
