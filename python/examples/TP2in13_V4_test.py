@@ -28,14 +28,6 @@ class ButtonSpec:
         self.ymax = ymax
         self.isWhite = isWhite
 
-    def __init__(self, button_spec):
-        self.name = button_spec.name
-        self.xmin = button_spec.xmin
-        self.ymin = button_spec.ymin
-        self.xmax = button_spec.xmax
-        self.ymax = button_spec.ymax
-        self.isWhite = button_spec.isWhite
-
     def isPressed(self, x, y):
         return self.xmin <= x <= self.xmax and self.ymin <= y <= self.ymax
 
