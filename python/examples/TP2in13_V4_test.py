@@ -83,6 +83,7 @@ def toggle_button(image, button_spec, font):
     # Draw centered text
     button_image.paste(text, (text_x, text_y))
     image.paste(button_image, (button_spec.xmin, button_spec.ymin))
+    button_spec.isWhite = isWhite  # Toggle the state
 
 
 def create_grid_layout(image, font):
