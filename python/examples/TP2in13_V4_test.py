@@ -148,7 +148,7 @@ def create_grid_layout(image, font):
     on_text_y = (250 //4) * 3 - on_text_width
     logger.debug(f"On text: height = {on_text_height} width = {on_text_width} x = {on_text_x}, y = {on_text_y}")
     image.paste(on_text, (on_text_x, on_text_y))
-    button_specs.append(ButtonSpec("ON", 127, bottom_area_top, 250, 122, supportsToggle=False))  
+    button_specs.append(ButtonSpec("ON", bottom_area_top, 127, 122, 250, supportsToggle=False))  
 
     off_text = prepare_text("OFF", font_small, padding=(0, 0))
     off_text_width, off_text_height = off_text.size
@@ -156,7 +156,7 @@ def create_grid_layout(image, font):
     off_text_y = (250 //4) - off_text_width
     logger.debug(f"Off text: height = {off_text_height} width = {off_text_width} x = {off_text_x}, y = {off_text_y}")
     image.paste(off_text, (off_text_x, off_text_y))
-    button_specs.append(ButtonSpec("OFF", 0, bottom_area_top, 124, 122, supportsToggle=False))  
+    button_specs.append(ButtonSpec("OFF", bottom_area_top, 0, 122, 124, supportsToggle=False))  
 
     return button_specs
 
