@@ -29,8 +29,8 @@ class ButtonSpec:
         self.ymin = ymin
         self.xmax = xmax
         self.ymax = ymax
-        self.isOn = False
-        self.supportsToggle
+        self.isOn = isOn
+        self.supports_toggle = supportsToggle
 
     def isPressed(self, x, y):
         return self.xmin <= x <= self.xmax and self.ymin <= y <= self.ymax
@@ -226,16 +226,16 @@ try:
             deviceTouchData.TouchpointFlag = 0
 
             for button_spec in button_specs:
-                if button_spec.isPressed(deviceTouchData.X[0], deviceTouchData.Y[0]) and button_spec.supportsToggle:
+                if button_spec.isPressed(deviceTouchData.X[0], deviceTouchData.Y[0]) and button_spec.supports_toggle:
                     logger.debug(f"Button {button_spec.name} pressed at ({deviceTouchData.X[0]}, {deviceTouchData.Y[0]})")
-                    if button_spec.supportsToggle:
+                    if button_spec.supports_toggle:
                         toggle_button(image, button_spec, font_large)
                         ReFlag = 1
                         break
                     elif button_spec.name == "ON":
                         logger.debug("Button ON pressed")
                         for button_spec in button_specs:
-                            if not button_spec.isOn and button_spec.supportsToggle:
+                            if not button_spec.isOn and button_spec.supports_toggle:
                                 logger.debug(f"Toggling button {button_spec.name} ON")
                                 toggle_button(image, button_spec, font_large)
                         ReFlag = 1
@@ -243,7 +243,7 @@ try:
                     elif button_spec.name == "OFF":
                         logger.debug("Button OFF pressed")
                         for button_spec in button_specs:
-                            if button_spec.isOn and button_spec.supportsToggle:
+                            if button_spec.isOn and button_spec.supports_toggle:
                                 logger.debug(f"Toggling button {button_spec.name} OFF")
                                 toggle_button(image, button_spec, font_large)
                         ReFlag = 1
