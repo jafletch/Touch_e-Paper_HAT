@@ -134,7 +134,7 @@ def create_grid_layout(image, font):
         image.paste(text, (text_x, text_y))
 
     bottom_area_top = 4 + (2 * top_rect_height)
-    bottom_area_height = 150 - bottom_area_top
+    bottom_area_height = 122 - bottom_area_top
     logger.debug(f"Bottom button: top = {bottom_area_top}, height = {bottom_area_height}")
 
 
