@@ -43,7 +43,7 @@ def pthread_irq() :
             deviceTouchData.Touch = 0
     logger.info("thread:exit")
 
-def prepare_text(text, font, isWhite=True):
+def prepare_text(text, font, isWhite=True, padding=(2,2)):
     """Create a rotated text image"""
     # Create temporary image for text measurement
     temp_img = Image.new('L', (1, 1))
@@ -57,7 +57,7 @@ def prepare_text(text, font, isWhite=True):
     text_draw = ImageDraw.Draw(text_img)
     
     # Draw text
-    text_draw.text((2, 2), text, font=font, fill=(0 if isWhite else 255))
+    text_draw.text(padding, text, font=font, fill=(0 if isWhite else 255))
     
     # Rotate and return
     return text_img.rotate(90, expand=True)
@@ -138,14 +138,14 @@ def create_grid_layout(image, font):
     logger.debug(f"Bottom button: top = {bottom_area_top}, height = {bottom_area_height}")
 
 
-    on_text = prepare_text("ON", font_small, isWhite=False)
+    on_text = prepare_text("ON", font_small, isWhite=True, padding=(0, 0))
     on_text_width, on_text_height = on_text.size
     on_text_x = bottom_area_top + bottom_area_height // 2 - on_text_height // 2
     on_text_y = 187 - on_text_width // 2
     logger.debug(f"On text: height = {on_text_height} width = {on_text_width} x = {on_text_x}, y = {on_text_y}")
     image.paste(on_text, (on_text_x, on_text_y))
 
-    off_text = prepare_text("OFF", font_small, isWhite=False)
+    off_text = prepare_text("OFF", font_small, isWhite=True, padding=(0, 0))
     off_text_width, off_text_height = off_text.size
     off_text_x = on_text_x
     off_text_y = 63 - off_text_width // 2
