@@ -23,13 +23,14 @@ font_large = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 16)
 font_small = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 14)
 
 class ButtonSpec:
-    def __init__(self, name, xmin, ymin, xmax, ymax, isWhite=True):
+    def __init__(self, name, xmin, ymin, xmax, ymax, isOn=False, supportsToggle=True):
         self.name = name
         self.xmin = xmin
         self.ymin = ymin
         self.xmax = xmax
         self.ymax = ymax
-        self.isWhite = isWhite
+        self.isOn = False
+        self.supportsToggle
 
     def isPressed(self, x, y):
         return self.xmin <= x <= self.xmax and self.ymin <= y <= self.ymax
@@ -65,7 +66,7 @@ def prepare_text(text, font, isWhite=True, padding=(2,2)):
 def toggle_button(image, button_spec, font):
     x_size = button_spec.xmax - button_spec.xmin + 1
     y_size = button_spec.ymax - button_spec.ymin + 1
-    isWhite = not button_spec.isWhite
+    isWhite = not button_spec.isOn
     button_image = Image.new('L', (x_size, y_size), 255 if isWhite else 0)
 
     draw = ImageDraw.Draw(button_image)
@@ -85,7 +86,7 @@ def toggle_button(image, button_spec, font):
     # Draw centered text
     button_image.paste(text, (text_x, text_y))
     image.paste(button_image, (button_spec.xmin, button_spec.ymin))
-    button_spec.isWhite = isWhite  # Toggle the state
+    button_spec.isOn = not button_spec.isOn  # Toggle the state
 
 
 def create_grid_layout(image, font):
@@ -138,19 +139,21 @@ def create_grid_layout(image, font):
     logger.debug(f"Bottom button: top = {bottom_area_top}, height = {bottom_area_height}")
 
 
-    on_text = prepare_text("ON", font_small, isWhite=True, padding=(0, 0))
+    on_text = prepare_text("ON", font_small, padding=(0, 0))
     on_text_width, on_text_height = on_text.size
     on_text_x = bottom_area_top + bottom_area_height // 2 - on_text_height // 2
     on_text_y = (250 //4) * 3 - on_text_width
     logger.debug(f"On text: height = {on_text_height} width = {on_text_width} x = {on_text_x}, y = {on_text_y}")
     image.paste(on_text, (on_text_x, on_text_y))
+    button_specs.append(ButtonSpec("ON", 127, bottom_area_top, 250, 122, supportsToggle=False))  
 
-    off_text = prepare_text("OFF", font_small, isWhite=True, padding=(0, 0))
+    off_text = prepare_text("OFF", font_small, padding=(0, 0))
     off_text_width, off_text_height = off_text.size
     off_text_x = on_text_x
     off_text_y = (250 //4) - off_text_width
     logger.debug(f"Off text: height = {off_text_height} width = {off_text_width} x = {off_text_x}, y = {off_text_y}")
     image.paste(off_text, (off_text_x, off_text_y))
+    button_specs.append(ButtonSpec("OFF", 0, bottom_area_top, 124, 122, supportsToggle=False))  
 
     return button_specs
 
@@ -223,11 +226,28 @@ try:
             deviceTouchData.TouchpointFlag = 0
 
             for button_spec in button_specs:
-                if button_spec.isPressed(deviceTouchData.X[0], deviceTouchData.Y[0]):
+                if button_spec.isPressed(deviceTouchData.X[0], deviceTouchData.Y[0]) and button_spec.supportsToggle:
                     logger.debug(f"Button {button_spec.name} pressed at ({deviceTouchData.X[0]}, {deviceTouchData.Y[0]})")
-                    toggle_button(image, button_spec, font_large)
-                    ReFlag = 1
-                    break
+                    if button_spec.supportsToggle:
+                        toggle_button(image, button_spec, font_large)
+                        ReFlag = 1
+                        break
+                    elif button_spec.name == "ON":
+                        logger.debug("Button ON pressed")
+                        for button_spec in button_specs:
+                            if not button_spec.isOn and button_spec.supportsToggle:
+                                logger.debug(f"Toggling button {button_spec.name} ON")
+                                toggle_button(image, button_spec, font_large)
+                        ReFlag = 1
+                        break
+                    elif button_spec.name == "OFF":
+                        logger.debug("Button OFF pressed")
+                        for button_spec in button_specs:
+                            if button_spec.isOn and button_spec.supportsToggle:
+                                logger.debug(f"Toggling button {button_spec.name} OFF")
+                                toggle_button(image, button_spec, font_large)
+                        ReFlag = 1
+                        break
                 
 except IOError as e:
     logger.exception("IOError")
