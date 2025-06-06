@@ -19,6 +19,9 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 flag_t = 1
 
+font16 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 16)
+font10 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 10)
+
 class ButtonSpec:
     def __init__(self, name, xmin, ymin, xmax, ymax, isWhite=True):
         self.name = name
@@ -103,7 +106,7 @@ def create_grid_layout(image, font):
     
     rect_labels = ["C Wall", "C End", "D Wall", "D End"]
     button_specs = []
-    # Draw 4 rectangles in upper 3/4 area
+    # Draw 4 rectangles in upper area
     for i in range(4):
         button_name = rect_labels[i]
         x1 = (0 if i < 2 else 1) * (top_rect_height + 1) + 1  # Add 1 pixel separator
@@ -130,6 +133,21 @@ def create_grid_layout(image, font):
         # Draw centered text
         image.paste(text, (text_x, text_y))
 
+    bottom_area_top = 4 + (2 * top_rect_height)
+    bottom_area_height = 122 - bottom_area_top
+
+    on_text = prepare_text("ON", font10, isWhite=False)
+    on_text_width, on_text_height = text.size
+    on_text_x = bottom_area_top + bottom_area_height // 2 - on_text_height // 2
+    on_text_y = 187 - on_text_width // 2
+    image.paste(on_text, (on_text_x, on_text_y))
+
+    off_text = prepare_text("OFF", font10, isWhite=False)
+    off_text_width, off_text_height = text.size
+    off_text_x = on_text_x
+    on_text_y = 63 - off_text_width // 2
+    image.paste(off_text, (off_text_x, on_text_y))
+
     return button_specs
 
 try:
@@ -150,14 +168,11 @@ try:
     t.daemon = True
     t.start()
 
-    # Drawing on the image
-    font = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 16)
-    
     # Create a new white image
     image = Image.new('L', (122, 250), 255)  # Create white image (122x250 pixels)
     
     # Create the grid layout
-    button_specs = create_grid_layout(image, font)
+    button_specs = create_grid_layout(image, font16)
     
     # Create drawing context
     DrawImage = ImageDraw.Draw(image)
@@ -206,7 +221,7 @@ try:
             for button_spec in button_specs:
                 if button_spec.isPressed(deviceTouchData.X[0], deviceTouchData.Y[0]):
                     logger.debug(f"Button {button_spec.name} pressed at ({deviceTouchData.X[0]}, {deviceTouchData.Y[0]})")
-                    toggle_button(image, button_spec, font)
+                    toggle_button(image, button_spec, font16)
                     ReFlag = 1
                     break
                 
