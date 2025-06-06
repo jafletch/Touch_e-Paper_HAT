@@ -69,17 +69,17 @@ def prepare_text(text, font, isWhite=True, padding=(2,2)):
 def toggle_button(image, button_spec, font):
     x_size = button_spec.xmax - button_spec.xmin + 1
     y_size = button_spec.ymax - button_spec.ymin + 1
-    isWhite = not button_spec.isOn
-    button_image = Image.new('L', (x_size, y_size), 255 if isWhite else 0)
+    to_white = button_spec.isOn
+    button_image = Image.new('L', (x_size, y_size), 255 if to_white else 0)
 
     draw = ImageDraw.Draw(button_image)
-    draw.rectangle([(0, 0), (x_size-1, y_size-1)], fill=(255 if isWhite else 0), outline=(0 if isWhite else 255), width=1)
+    draw.rectangle([(0, 0), (x_size-1, y_size-1)], fill=(255 if to_white else 0), outline=(0 if to_white else 255), width=1)
 
     # Calculate center position for text
     center_x = x_size // 2
     center_y = y_size // 2
     
-    text = prepare_text(button_spec.name, font, isWhite)
+    text = prepare_text(button_spec.name, font, to_white)
     text_width, text_height = text.size
 
     # Calculate text position (top-left corner for centered text)
