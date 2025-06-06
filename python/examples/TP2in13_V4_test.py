@@ -239,18 +239,18 @@ try:
                         break
                     elif button_spec.name == "ON":
                         logger.debug("Button ON pressed")
-                        for button_spec in button_specs:
-                            if not button_spec.isOn and button_spec.supports_toggle:
-                                logger.debug(f"Toggling button {button_spec.name} ON")
-                                toggle_button(image, button_spec, font_large)
+                        for spec in button_specs:
+                            if not spec.isOn and spec.supports_toggle:
+                                logger.debug(f"Toggling button {spec.name} ON")
+                                toggle_button(image, spec, font_large)
                         ReFlag = 1
                         break
                     elif button_spec.name == "OFF":
                         logger.debug("Button OFF pressed")
                         for button_spec in button_specs:
-                            if button_spec.isOn and button_spec.supports_toggle:
-                                logger.debug(f"Toggling button {button_spec.name} OFF")
-                                toggle_button(image, button_spec, font_large)
+                            if spec.isOn and spec.supports_toggle:
+                                logger.debug(f"Toggling button {spec.name} OFF")
+                                toggle_button(image, spec, font_large)
                         ReFlag = 1
                         break
                 
