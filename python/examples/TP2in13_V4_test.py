@@ -2,7 +2,6 @@
 # -*- coding:utf-8 -*-
 import sys
 import os
-picdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'pic/2in13')
 fontdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'pic')
 libdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'lib')
 if os.path.exists(libdir):
@@ -20,13 +19,22 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 flag_t = 1
 
-class ButtonBounds:
-    def __init__(self, name, xmin, ymin, xmax, ymax):
+class ButtonSpec:
+    def __init__(self, name, xmin, ymin, xmax, ymax, isWhite=True):
         self.name = name
         self.xmin = xmin
         self.ymin = ymin
         self.xmax = xmax
         self.ymax = ymax
+        self.isWhite = isWhite
+
+    def __init__(self, button_spec):
+        self.name = button_spec.name
+        self.xmin = button_spec.xmin
+        self.ymin = button_spec.ymin
+        self.xmax = button_spec.xmax
+        self.ymax = button_spec.ymax
+        self.isWhite = button_spec.isWhite
 
     def isPressed(self, x, y):
         return self.xmin <= x <= self.xmax and self.ymin <= y <= self.ymax
@@ -40,28 +48,7 @@ def pthread_irq() :
             deviceTouchData.Touch = 0
     logger.info("thread:exit")
 
-""" def Show_Photo_Small(image, small):
-    for t in range(1, 5):
-        if(small*2+t > 6):
-            newimage = Image.open(os.path.join(picdir, PhotoPath_S[0]))
-            image.paste(newimage, ((t-1)//2*45+2, (t%2)*124+2))
-        else:
-            newimage = Image.open(os.path.join(picdir, PhotoPath_S[small*2+t]))
-            image.paste(newimage, ((t-1)//2*45+2, (t%2)*124+2))
-
-def Show_Photo_Large(image, large):
-    if(large > 6):
-        newimage = Image.open(os.path.join(picdir, PhotoPath_L[0]))
-        image.paste(newimage, (2, 2))
-    else:
-        newimage = Image.open(os.path.join(picdir, PhotoPath_L[large]))
-        image.paste(newimage, (2, 2))
-
-def Read_BMP(File, x, y):
-    newimage = Image.open(os.path.join(picdir, File))
-    image.paste(newimage, (x, y)) """
-
-def prepare_text(text, font):
+def prepare_text(text, font, isWhite):
     """Create a rotated text image"""
     # Create temporary image for text measurement
     temp_img = Image.new('L', (1, 1))
@@ -71,14 +58,40 @@ def prepare_text(text, font):
     text_height = bbox[3] - bbox[1]
     
     # Create image for the text
-    text_img = Image.new('L', (text_width + 4, text_height + 4), 255)  # Add padding
+    text_img = Image.new('L', (text_width + 4, text_height + 4), 255 if isWhite else 0)  # Add padding
     text_draw = ImageDraw.Draw(text_img)
     
     # Draw text
-    text_draw.text((2, 2), text, font=font, fill=0)
+    text_draw.text((2, 2), text, font=font, fill=(0 if isWhite else 255))  # Fill with black if white background
     
     # Rotate and return
     return text_img.rotate(90, expand=True)
+
+def toggle_button(image, button_spec, font):
+    x_size = button_spec.xmax - button_spec.xmin + 1
+    y_size = button_spec.ymax - button_spec.ymin + 1
+    isWhite = not button_spec.isWhite
+    button_image = Image.new('L', (x_size, y_size), 255 if isWhite else 0)
+    text = prepare_text(button_spec.name, font)
+
+    draw = ImageDraw.Draw(button_image)
+    draw.rectangle([(0, 0), (x_size, y_size)], fill=(255 if isWhite else 0), outline=(0 if isWhite else 255), width=1)
+
+    # Calculate center position for text
+    center_x = (button_spec.xmin + button_spec.xmax) // 2
+    center_y = (button_spec.ymin + button_spec.ymax) // 2
+    
+    text = prepare_text(button_spec.name, font)
+    text_width, text_height = text.size
+
+    # Calculate text position (top-left corner for centered text)
+    text_x = center_x - text_width // 2
+    text_y = center_y - text_height // 2
+    
+    # Draw centered text
+    button_image.paste(text, (text_x, text_y))
+    image.paste(button_image, (button_spec.xmin, button_spec.ymin))
+
 
 def create_grid_layout(image, font):
     """Create a grid layout filling the entire display"""
@@ -97,7 +110,7 @@ def create_grid_layout(image, font):
     top_rect_height = int(((display_x * 3 / 7)  - 3))
     
     rect_labels = ["C Wall", "C End", "D Wall", "D End"]
-    button_bounds = []
+    button_specs = []
     # Draw 4 rectangles in upper 3/4 area
     for i in range(4):
         button_name = rect_labels[i]
@@ -105,7 +118,7 @@ def create_grid_layout(image, font):
         y1 = ((i + 2) % 2) * (top_rect_width + 1)  # Add 1 pixel separator
         x2 = x1 + top_rect_height - 1
         y2 = y1 + top_rect_width - 1
-        button_bounds.append(ButtonBounds(button_name, x1, y1, x2, y2))
+        button_specs.append(ButtonSpec(button_name, x1, y1, x2, y2))
         logger.debug(f"Drawing rectangle {i}: ({x1}, {y1}) to ({x2}, {y2})")
         
         # Draw white rectangle with black border
@@ -125,7 +138,7 @@ def create_grid_layout(image, font):
         # Draw centered text
         image.paste(text, (text_x, text_y))
 
-    return button_bounds
+    return button_specs
 
 try:
     logger.info("Wall Heater Controller")
@@ -152,7 +165,7 @@ try:
     image = Image.new('L', (122, 250), 255)  # Create white image (122x250 pixels)
     
     # Create the grid layout
-    button_bounds = create_grid_layout(image, font)
+    button_specs = create_grid_layout(image, font)
     
     # Create drawing context
     DrawImage = ImageDraw.Draw(image)
@@ -198,10 +211,10 @@ try:
             touchEventCount += 1
             deviceTouchData.TouchpointFlag = 0
 
-            for button_bound in button_bounds:
-                if button_bound.isPressed(deviceTouchData.X[0], deviceTouchData.Y[0]):
-                    logger.debug(f"Button {button_bound.name} pressed at ({deviceTouchData.X[0]}, {deviceTouchData.Y[0]})")
-                    # Handle button press here if needed
+            for button_spec in button_specs:
+                if button_spec.isPressed(deviceTouchData.X[0], deviceTouchData.Y[0]):
+                    logger.debug(f"Button {button_spec.name} pressed at ({deviceTouchData.X[0]}, {deviceTouchData.Y[0]})")
+                    toggle_button(image, button_spec, font)
                     break
                 
 except IOError as e:
