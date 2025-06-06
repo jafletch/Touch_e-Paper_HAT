@@ -34,6 +34,9 @@ class ButtonSpec:
 
     def isPressed(self, x, y):
         return self.xmin <= x <= self.xmax and self.ymin <= y <= self.ymax
+    
+    def log(self):
+        logger.debug(f"Button {self.name}: ({self.xmin}, {self.ymin}) to ({self.xmax}, {self.ymax}), isOn: {self.isOn}, supportsToggle: {self.supports_toggle}")
 
 def pthread_irq() :
     logger.info("pthread running")
@@ -180,6 +183,8 @@ try:
     
     # Create the grid layout
     button_specs = create_grid_layout(image, font_large)
+    for button_spec in button_specs:
+        button_spec.log()
     
     # Create drawing context
     DrawImage = ImageDraw.Draw(image)
