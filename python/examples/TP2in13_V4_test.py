@@ -247,7 +247,7 @@ try:
                         break
                     elif button_spec.name == "OFF":
                         logger.debug("Button OFF pressed")
-                        for button_spec in button_specs:
+                        for spec in button_specs:
                             if spec.isOn and spec.supports_toggle:
                                 logger.debug(f"Toggling button {spec.name} OFF")
                                 toggle_button(image, spec, font_large)
